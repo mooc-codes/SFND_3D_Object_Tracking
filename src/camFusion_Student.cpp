@@ -176,35 +176,45 @@ std::pair<size_t, int> getBoundingBoxCount(cv::KeyPoint &keypoint, std::vector<B
 
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
 {
-    std::vector<std::pair<int, int>> bbPairs;
+   // Remove matches with keypoints that are in more than one bounding box
 
-    for (const cv::DMatch &match: matches)
-    {
-        //query ID is the keypoint number in previousFrame (source)
-        //trainID is the keypoiny number in currFrame (reference)
-        // Get the keypoints
-        cv::KeyPoint prevKpt = prevFrame.keypoints[match.queryIdx];
-        cv::KeyPoint currKpt = currFrame.keypoints[match.trainIdx];
+   for (auto it = matches.begin(); it != matches.end(); it++)
+   {
+        cv::KeyPoint prevKpt = prevFrame.keypoints[(*it).queryIdx];
+        cv::KeyPoint currKpt = currFrame.keypoints[(*it).trainIdx];
 
-        // Find the boxID for both keypoints
-        // One keypoint maybe in more than one bounding box, in which case we discard that point.
-        // Check if keypont is included in more than one bounding box
         auto prevResult = getBoundingBoxCount(prevKpt, prevFrame.boundingBoxes);
         auto currResult = getBoundingBoxCount(currKpt, currFrame.boundingBoxes);
-        size_t prevKptCount = prevResult.first;
-        size_t currKptCount = currResult.first;
-        size_t prevBoxID, currBoxID;
-        // If any of the keypoints are in multiple bounding boxes, discard the match;
-        if(prevKptCount == 1 and currKptCount == 1)
+
+        // If either of the keypoints in the pair appear in more than one bounding box, remove that match 
+        if(prevResult.first != 1 || currResult.first != 1)
         {
-            auto id = std::make_pair(prevResult.second, currResult.second);
-            bbPairs.emplace_back(id);
-
+            matches.erase(it);
         }
-    }
 
-    for(auto &item: bbPairs)
-    {
-        std::cout<< item.first << ", " << item.second << std::endl;
-    }
+   }
+
+    // For each box in the current frame , find a match in the previous frame.
+   for(const BoundingBox &box: currFrame.boundingBoxes)
+   {
+        // For each unique box in currFrame, find the count of matches in each unique box in prevFrame
+        std::unordered_map<int, int> buddyCount;
+        for(const cv::DMatch &match: matches)
+        {
+            cv::KeyPoint prevKpt = prevFrame.keypoints[match.queryIdx];
+            cv::KeyPoint currKpt = currFrame.keypoints[match.trainIdx];
+
+            for(const BoundingBox &box2: prevFrame.boundingBoxes)
+            {
+                if(box.roi.contains(currKpt.pt) && box2.roi.contains(prevKpt.pt))
+                {
+                    buddyCount[box2.boxID]++;
+                }
+            }
+        }
+        int maxPrevBox = *std::max_element(buddyCount.begin(), buddyCount.end(), [const int l, const int r]{return l.second < r.second;})
+        bbBestMatches[box.boxID] = maxPrevBox.boxID;
+        
+   }
+
 }
