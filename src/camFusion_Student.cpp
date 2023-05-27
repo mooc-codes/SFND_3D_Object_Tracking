@@ -212,7 +212,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
                 }
             }
         }
-        int maxPrevBox = *std::max_element(buddyCount.begin(), buddyCount.end(), [](const int l, const int r){return l.second < r.second;})
+        int maxPrevBox = *std::max_element(buddyCount.begin(), buddyCount.end(), [](int l, int r){return l.second < r.second;})
         bbBestMatches[box.boxID] = maxPrevBox.boxID;
         
    }
