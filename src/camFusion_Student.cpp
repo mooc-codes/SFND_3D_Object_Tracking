@@ -2,6 +2,8 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
+#include <utility>
+#include <unordered_map>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -157,7 +159,52 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 }
 
 
+std::pair<size_t, int> getBoundingBoxCount(cv::KeyPoint &keypoint, std::vector<BoundingBox> &boxes)
+{
+    size_t count = 0;
+    int id;
+    for(BoundingBox &box: boxes)
+    {
+        if(box.roi.contains(keypoint.pt))
+        {
+            count++;
+        }
+        id = box.boxID;
+    }
+    return std::make_pair(count, id);
+}
+
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
 {
-    // ...
+    std::vector<std::pair<int, int>> bbPairs;
+
+    for (const cv::DMatch &match: matches)
+    {
+        //query ID is the keypoint number in previousFrame (source)
+        //trainID is the keypoiny number in currFrame (reference)
+        // Get the keypoints
+        cv::KeyPoint prevKpt = prevFrame.keypoints[match.queryIdx];
+        cv::KeyPoint currKpt = currFrame.keypoints[match.trainIdx];
+
+        // Find the boxID for both keypoints
+        // One keypoint maybe in more than one bounding box, in which case we discard that point.
+        // Check if keypont is included in more than one bounding box
+        auto prevResult = getBoundingBoxCount(prevKpt, prevFrame.boundingBoxes);
+        auto currResult = getBoundingBoxCount(currKpt, currFrame.boundingBoxes);
+        size_t prevKptCount = prevResult.first;
+        size_t currKptCount = currResult.first;
+        size_t prevBoxID, currBoxID;
+        // If any of the keypoints are in multiple bounding boxes, discard the match;
+        if(prevKptCount == 1 and currKptCount == 1)
+        {
+            auto id = std::make_pair(prevResult.second, currResult.second);
+            bbPairs.emplace_back(id);
+
+        }
+    }
+
+    for(auto &item: bbPairs)
+    {
+        std::cout<< item.first << ", " << item.second << std::endl;
+    }
 }
