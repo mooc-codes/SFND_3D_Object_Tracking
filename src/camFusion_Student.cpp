@@ -189,6 +189,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
         if(prevKptBoxCount == 1 || currKptBoxCount == 1)
         {
             uniqueKptMatches.push_back(*it);
+            std::cout << "Skipping match" << std::endl;
         }
 
    }
