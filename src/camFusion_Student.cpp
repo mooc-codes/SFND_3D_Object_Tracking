@@ -201,7 +201,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
                 {
                     if(boxCurr.roi.contains(currKpt.pt))
                     {
-                        pairCount.at<int>(box1.boxID, box2.boxID)++;
+                        pairCount.at<int>(boxPrev.boxID, boxCurr.boxID)++;
                     }
                 }
             }
