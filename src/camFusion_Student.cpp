@@ -168,8 +168,9 @@ std::pair<size_t, int> getBoundingBoxCount(cv::KeyPoint &keypoint, std::vector<B
         if(box.roi.contains(keypoint.pt))
         {
             count++;
+            id = box.boxID;
         }
-        id = box.boxID;
+        
     }
     return std::make_pair(count, id);
 }
