@@ -209,7 +209,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
    // For each row (bounding box in previous frame), find the column (bounding box in current frame)
    // that has highest count
    cv::Point minLoc, maxLoc;
-   int minVal, maxVal;
+   double minVal, maxVal;
    for(int i = 0; i < rows; i++)
    {
         cv::minMaxLoc(pairCount.row(i), &minVal, &maxVal, &minLoc, &maxLoc);
