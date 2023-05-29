@@ -193,20 +193,20 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
         cv::KeyPoint prevKpt = prevFrame.keypoints[(*it).queryIdx];
         cv::KeyPoint currKpt = currFrame.keypoints[(*it).trainIdx];
 
-        auto prevKptBoxCount = getBoundingBoxCount(prevKpt, prevFrame.boundingBoxes);
-        auto currKptBoxCount = getBoundingBoxCount(currKpt, currFrame.boundingBoxes);
-
-        // If either of the keypoints in the pair appear in more than one bounding box, remove that match 
-        if(prevKptBoxCount.first == 1 || currKptBoxCount.first == 1)
+        for (auto boxPrev: prevFrame.boundingBoxes)
         {
-            pairCount.at<int>(prevKptBoxCount.second, currKptBoxCount.second)++;
-        }
-        else
-        {
-            std::cout << "Skipping match" << std::endl;
+            if (boxPrev.roi.contains(prevKpt.pt))
+            {
+                for(auto boxCurr: currFrame.boundingBoxes)
+                {
+                    if(boxCurr.roi.contains(currKpt.pt))
+                    {
+                        pairCount.at<int>(box1.boxID, box2.boxID)++;
+                    }
+                }
+            }
         }
    }
-
    // For each row (bounding box in previous frame), find the column (bounding box in current frame)
    // that has highest count
    cv::Point minLoc, maxLoc;
