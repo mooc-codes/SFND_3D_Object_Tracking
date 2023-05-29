@@ -195,7 +195,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
    }
 
     // For each box in the current frame , find a match in the previous frame.
-   for(const BoundingBox &box: currFrame.boundingBoxes)
+   for(const BoundingBox &box: prevFrame.boundingBoxes)
    {
         // For each unique box in currFrame, find the count of matches in each unique box in prevFrame
         std::unordered_map<int, int> buddyCount;
@@ -204,9 +204,9 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
             cv::KeyPoint prevKpt = prevFrame.keypoints[match.queryIdx];
             cv::KeyPoint currKpt = currFrame.keypoints[match.trainIdx];
 
-            for(const BoundingBox &box2: prevFrame.boundingBoxes)
+            for(const BoundingBox &box2: currFrame.boundingBoxes)
             {
-                if(box.roi.contains(currKpt.pt) && box2.roi.contains(prevKpt.pt))
+                if(box.roi.contains(prevKpt.pt) && box2.roi.contains(currKpt.pt))
                 {
                     buddyCount[box2.boxID]++;
                 }
