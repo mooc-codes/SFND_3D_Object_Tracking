@@ -226,10 +226,10 @@ int main(int argc, const char *argv[])
 
             cout << "#8 : TRACK 3D OBJECT BOUNDING BOXES done" << endl;
 
-            for(const auto bbPair: bbBestMatches)
-            {
-                std::cout << bbPair.first << ", " << bbPair.second << std::endl;
-            }
+            // for(const auto bbPair: bbBestMatches)
+            // {
+            //     std::cout << bbPair.first << ", " << bbPair.second << std::endl;
+            // }
 
             /* COMPUTE TTC ON OBJECT IN FRONT */
 
