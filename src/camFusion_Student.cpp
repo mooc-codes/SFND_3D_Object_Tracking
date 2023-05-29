@@ -188,7 +188,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
         // If either of the keypoints in the pair appear in more than one bounding box, remove that match 
         if(prevKptBoxCount == 1 || currKptBoxCount == 1)
         {
-            uniqueKptMatches.push_back(*it)
+            uniqueKptMatches.push_back(*it);
         }
 
    }
