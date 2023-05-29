@@ -176,6 +176,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
 {
    // Remove matches with keypoints that are in more than one bounding box
 
+   std::vector<cv::DMatch> uniqueKptMatches;
    for (auto it = matches.begin(); it != matches.end(); it++)
    {
         cv::KeyPoint prevKpt = prevFrame.keypoints[(*it).queryIdx];
@@ -185,9 +186,9 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
         auto currKptBoxCount = getBoundingBoxCount(currKpt, currFrame.boundingBoxes);
 
         // If either of the keypoints in the pair appear in more than one bounding box, remove that match 
-        if(prevKptBoxCount != 1 || currKptBoxCount != 1)
+        if(prevKptBoxCount == 1 || currKptBoxCount == 1)
         {
-            matches.erase(it);
+            uniqueKptMatches.push_back(*it)
         }
 
    }
@@ -197,7 +198,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
    {
         // For each unique box in currFrame, find the count of matches in each unique box in prevFrame
         std::unordered_map<int, int> buddyCount;
-        for(const cv::DMatch &match: matches)
+        for(const cv::DMatch &match: uniqueKptMatches)
         {
             cv::KeyPoint prevKpt = prevFrame.keypoints[match.queryIdx];
             cv::KeyPoint currKpt = currFrame.keypoints[match.trainIdx];
