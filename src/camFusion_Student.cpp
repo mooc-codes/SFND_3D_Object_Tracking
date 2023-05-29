@@ -185,7 +185,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
    int rows = prevFrame.boundingBoxes.size();
    int cols = currFrame.boundingBoxes.size();
 
-   cv::Mat::zeros pairCount(rows, cols, CV_32S);
+   cv::Mat  pairCount = cv::Mat::zeros(rows, cols, CV_32S);
 
    for (auto it = matches.begin(); it != matches.end(); it++)
    {
