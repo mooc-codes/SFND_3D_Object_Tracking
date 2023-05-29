@@ -159,19 +159,17 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 }
 
 
-std::pair<size_t, int> getBoundingBoxCount(cv::KeyPoint &keypoint, std::vector<BoundingBox> &boxes)
+int getBoundingBoxCount(cv::KeyPoint &keypoint, std::vector<BoundingBox> &boxes)
 {
     size_t count = 0;
-    int id;
     for(BoundingBox &box: boxes)
     {
         if(box.roi.contains(keypoint.pt))
         {
             count++;
         }
-        id = box.boxID;
     }
-    return std::make_pair(count, id);
+    return count;
 }
 
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
