@@ -215,6 +215,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
    {
         cv::minMaxLoc(pairCount.row(i), &minVal, &maxVal, &minLoc, &maxLoc);
         std::cout << " BB PAIR: " << i << ", " << maxLoc.x << std::endl;
+        bbBestMatches[i]=maxLoc.x;
    }
  
 }
