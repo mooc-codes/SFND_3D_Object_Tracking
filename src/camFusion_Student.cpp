@@ -181,11 +181,11 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
         cv::KeyPoint prevKpt = prevFrame.keypoints[(*it).queryIdx];
         cv::KeyPoint currKpt = currFrame.keypoints[(*it).trainIdx];
 
-        auto prevResult = getBoundingBoxCount(prevKpt, prevFrame.boundingBoxes);
-        auto currResult = getBoundingBoxCount(currKpt, currFrame.boundingBoxes);
+        auto prevKptBoxCount = getBoundingBoxCount(prevKpt, prevFrame.boundingBoxes);
+        auto currKptBoxCount = getBoundingBoxCount(currKpt, currFrame.boundingBoxes);
 
         // If either of the keypoints in the pair appear in more than one bounding box, remove that match 
-        if(prevResult.first != 1 || currResult.first != 1)
+        if(prevKptBoxCount != 1 || currKptBoxCount != 1)
         {
             matches.erase(it);
         }
