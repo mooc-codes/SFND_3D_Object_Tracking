@@ -183,7 +183,7 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 
     // Find distance between 1st and 2nd closest point
     double thresh = 0.05; // 5cm
-    double s0, s1;
+    double s0, s1, dt;
 
     s0 = abs(minPrev1 - minPrev2) < thresh ? minPrev1 : minPrev2;
     s1 = abs(minCurr1 - minCurr2) < thresh ? minCurr1 : minCurr2;
