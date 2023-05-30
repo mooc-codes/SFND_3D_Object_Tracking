@@ -189,7 +189,7 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
     s1 = abs(minCurr1 - minCurr2) < thresh ? minCurr1 : minCurr2;
     dt = 1 / frameRate; 
 
-    TTC =  (s1 * dt) / (s0 - s1);  
+    TTC =  (s1 * dt) / abs(s0 - s1);  
 
 }
 
