@@ -155,7 +155,42 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
 void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
                      std::vector<LidarPoint> &lidarPointsCurr, double frameRate, double &TTC)
 {
-    // ...
+    // Find the closest point along x axis for both set of lidar points
+
+    double minPrev1 = 1e9;
+    double minPrev2 = 1e9;
+    double minCurr1 = 1e9;
+    double minCurr2 = 1e9;
+
+    for(const auto &point: lidarPointsPrev)
+    {
+        if(point.x < minPrev1)
+        {
+            minPrev1 = point.x;
+            std::swap(minPrev2, minPrev1);
+        }
+    }
+
+    for(const auto &point: lidarPointsCurr)
+    {
+        if(point.x < minCurr1)
+        {
+            minCurr1 = point.x;
+            std::swap(minCurr2, minCurr1);
+        }
+    }
+    
+
+    // Find distance between 1st and 2nd closest point
+    double thresh = 0.05; // 5cm
+    double s0, s1;
+
+    s0 = abs(minPrev1 - minPrev2) < thresh ? minPrev1 : minPrev2;
+    s1 = abs(minCurr1 - minCurr2) < thresh ? minCurr1 : minCurr2;
+    dt = 1 / frameRate; 
+
+    return (s1 * dt) / (s1 - s0);  
+
 }
 
 
@@ -175,9 +210,6 @@ std::pair<size_t, int> getBoundingBoxCount(cv::KeyPoint &keypoint, std::vector<B
     return std::make_pair(count, id);
 }
 
-
-    //    auto maxCurrBox = *std::max_element(buddyCount.begin(), buddyCount.end(), [](const auto l, const auto r){return l.second < r.second;});
-    //     bbBestMatches[box.boxID] = maxCurrBox.first;
 
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
 {
