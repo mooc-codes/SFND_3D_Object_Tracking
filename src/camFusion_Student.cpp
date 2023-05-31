@@ -215,8 +215,8 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
 {
    // Remove matches with keypoints that are in more than one bounding box
 
-   int rows = prevFrame.boundingBoxes.size();
-   int cols = currFrame.boundingBoxes.size();
+   int cols = prevFrame.boundingBoxes.size();
+   int rows = currFrame.boundingBoxes.size();
 
    cv::Mat  pairCount = cv::Mat::zeros(rows, cols, CV_32S);
 
@@ -233,8 +233,8 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
                 {
                     if(boxCurr.roi.contains(currKpt.pt))
                     {
-                        std::cout << "Found Pair " << boxPrev.boxID << ", " << boxCurr.boxID << std::endl;
-                        pairCount.at<int>(boxPrev.boxID, boxCurr.boxID)++;
+                        // std::cout << "Found Pair " << boxPrev.boxID << ", " << boxCurr.boxID << std::endl;
+                        pairCount.at<int>(boxCurr.boxID, boxPrev.boxID)++;
                     }
                 }
             }
