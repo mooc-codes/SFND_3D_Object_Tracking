@@ -199,41 +199,20 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
 void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
                      std::vector<LidarPoint> &lidarPointsCurr, double frameRate, double &TTC)
 {
-    // Find the closest point along x axis for both set of lidar points
+    // Get all x coordinates for current and previous frame
+    std::vector<double> xPrev, xCurr;
 
-    double minPrev1 = 1e9;
-    double minPrev2 = 1e9;
-    double minCurr1 = 1e9;
-    double minCurr2 = 1e9;
-
-    for(const auto &point: lidarPointsPrev)
-    {
-        if(point.x < minPrev1)
-        {
-            minPrev1 = point.x;
-            std::swap(minPrev2, minPrev1);
-        }
-    }
-
-    for(const auto &point: lidarPointsCurr)
-    {
-        if(point.x < minCurr1)
-        {
-            minCurr1 = point.x;
-            std::swap(minCurr2, minCurr1);
-        }
-    }
+    std::tranform(lidarPointsPrev.begin(), lidarPointPrev.end(), xPrev.begin(), [](auto& point){return point.x;});
+    std::(xPrev.begin(), xPrev.end());
     
+    std::transform(lidarPointsCurr.begin(), lidarPointCurr.end(), xCurr.begin(), [](auto& point){return point.x;});
+    std::sort(xCurr.begin(), xCurr.end());
 
-    // Find distance between 1st and 2nd closest point
-    double thresh = 0.02; // 5cm
-    double s0, s1, dt;
+    double xPrevMean = std::accumulate(xPrev.begin(), xPrev.end(), 0.0) / xPrev.size();
+    double xCurrMean = std::accumulate(xCurr.begin(), xCurr.end(), 0.0) / xCurr.size();
 
-    s0 = abs(minPrev1 - minPrev2) < thresh ? minPrev1 : minPrev2;
-    s1 = abs(minCurr1 - minCurr2) < thresh ? minCurr1 : minCurr2;
-    dt = 1 / frameRate; 
-
-    TTC =  (s1 * dt) / abs(s0 - s1);  
+    double dT = 1.0 / frameRate;
+    TTC =  (xCurrMean * dT) / (xPrevMean - xCurrMean);
 
 }
 
