@@ -153,9 +153,9 @@ void clusterKptMatchesWithROI(BoundingBox &boundingBox, std::vector<cv::KeyPoint
     double kptDistMean = std::accumulate(kptDistances.begin(), kptDistances.end(), 0.0) / boundingBox.kptMatches.size();
     // Compute standard deviation
     std::vector<double> deviations(boundingBox.kptMatches.size());
-    auto squared_error = [&](auto& dist){return std::pow(dist - mean, 2);};
+    auto squared_error = [&](auto& dist){return std::pow(dist - kptDistMean, 2);};
     std::transform(kptDistances.begin(), kptDistances.end(), deviations.begin(), squared_error)
-    double KptDistSD = std::sqrt(std::accumulate(deviations.begin(), deviations.end(), 0.0) / deviations.size()):
+    double KptDistSD = std::sqrt(std::accumulate(deviations.begin(), deviations.end(), 0.0) / deviations.size());
 
     // A match is outlier if the distance is > 1.8 times the standatd deviation
     auto is_outlier = [&](auto& dist){return dist > (1.8 * KptDistSD);};
