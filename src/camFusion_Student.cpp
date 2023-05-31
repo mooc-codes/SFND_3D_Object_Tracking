@@ -181,7 +181,7 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
    // Now we have distance ratios for all keypoint match pairs
    // Compute the median 
    std::sort(distanceRatios.begin(), distanceRatios.end());
-   int medianIdx = static_cast<int>(floor(distanceRatios.size() / 2));
+   int medianIdx = floor(distanceRatios.size() / 2.0);
 
    double medianDistanceRatio = medianIdx % 2 == 0 ? (distanceRatios[medianIdx] + distanceRatios[medianIdx - 1]) / 2.0 : distanceRatios[medianIdx];
 
