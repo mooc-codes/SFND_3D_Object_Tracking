@@ -213,12 +213,11 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
             if(prevBoxCount == 1 && currBoxCount == 1) uniqueMatches.push_back(match);
 
     }
-    
+
     // replace the original with unqiue only
     matches = uniqueMatches;
 
     // For each bounding box in current frame, go through the matches
-    int currBoxMatch = -1;
     std::map<int, int> prevBoxCounter;
     for(BoundingBox &boxCurr: currFrame.boundingBoxes)
     {
