@@ -199,6 +199,24 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
 {
 
+    std::vector<cv::DMatch> uniqueMatches;
+    // Remove matches with keypoints that are in more than one bounding box
+    int prevBoxCount, currBoxCount;
+    for(cv::DMatch &match: matches)
+    {
+            prevBoxCount = 0;
+            currBoxCount = 0;
+
+            for(BoundingBox &box: currFrame.boundingBoxes) if(box.roi.contains(currFrame.keypoints[match.trainIdx].pt)) currBoxCount++;
+            for(BoundingBox &box: prevFrame.boundingBoxes) if(box.roi.contains(prevFrame.keypoints[match.queryIdx].pt)) prevBoxCount++;
+
+            if(prevBoxCount == 1 && currBoxCount == 1) uniqueMatches.push_back(match);
+
+    }
+    
+    // replace the original with unqiue only
+    matches = uniqueMatches;
+
     // For each bounding box in current frame, go through the matches
     int currBoxMatch = -1;
     std::map<int, int> prevBoxCounter;
