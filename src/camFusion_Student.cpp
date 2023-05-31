@@ -160,6 +160,18 @@ void clusterKptMatchesWithROI(BoundingBox &boundingBox, std::vector<cv::KeyPoint
     // A match is outlier if the distance is > 1.8 times the standatd deviation
     auto is_outlier = [&](auto& dist){return dist > (1.8 * KptDistSD);};
     boundingBox.kptMatches.erase(std::remove_if(kptDistances.begin(), kptDistances.end(), is_outlier), boundingBox.kptMatches.end());
+
+    std::vector<cv::DMatch> inliers;
+    double lowerLimit = kptDistMean - (1.8 * KptDistSD);
+    double upperLimit = kptDistMean + (1.8 * KptDistSD);
+    for(size_t i = 0; i < kptDistances.size(); i++)
+    {
+        if(kptDistances[i] >= lowerLimit && kptDistances[i] <= upperLimit)
+        {
+            inliers.push_back(boundingBox.kptMatches[i]);
+        }
+    }
+    boundingBox.kptMatches = inliers;
 }
 
 
