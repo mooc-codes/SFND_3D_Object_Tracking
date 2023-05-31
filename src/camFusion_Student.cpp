@@ -228,13 +228,13 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 
     std::transform(lidarPointsPrev.begin(), lidarPointsPrev.end(), xPrev.begin(), [](auto& point){return point.x;}); 
     std::transform(lidarPointsCurr.begin(), lidarPointsCurr.end(), xCurr.begin(), [](auto& point){return point.x;});
-    std::cout<<"Transform done "<<std::endl;
+
     double xPrevMean = std::accumulate(xPrev.begin(), xPrev.end(), 0.0) / xPrev.size();
     double xCurrMean = std::accumulate(xCurr.begin(), xCurr.end(), 0.0) / xCurr.size();
-    std::cout<< " Mean calculated "<<std::endl;
+
     double dT = 1.0 / frameRate;
     TTC =  (xCurrMean * dT) / (xPrevMean - xCurrMean);
-    std::cout << "TTC computed "<<std::endl;
+
 
 }
 
