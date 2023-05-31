@@ -151,44 +151,48 @@ void clusterKptMatchesWithROI(BoundingBox &boundingBox, std::vector<cv::KeyPoint
 void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPoint> &kptsCurr, 
                       std::vector<cv::DMatch> kptMatches, double frameRate, double &TTC, cv::Mat *visImg)
 {
-   double minDistanceThreshold = 100.0;
-   std::vector<double> distanceRatios;
-   for(cv::DMatch &match: kptMatches)
-   {
-        // Get a keypoint in previous frame and its match in current frame.
-        cv::KeyPoint prevKpt = kptsPrev[match.queryIdx];
-        cv::KeyPoint currKpt = kptsCurr[match.trainIdx];
+    double minDistanceThreshold = 100.0;
+    std::vector<double> distanceRatios;
+    for(cv::DMatch &match: kptMatches)
+    {
+            // Get a keypoint in previous frame and its match in current frame.
+            cv::KeyPoint prevKpt = kptsPrev[match.queryIdx];
+            cv::KeyPoint currKpt = kptsCurr[match.trainIdx];
 
-        // Compute the distance of this keypoint (both in previous and current frame) to all other keypoints
+            // Compute the distance of this keypoint (both in previous and current frame) to all other keypoints
 
-        for(cv::DMatch &other: kptMatches)
-        {
-            bool isSame = other.queryIdx == match.queryIdx && other.trainIdx == match.trainIdx;
-            if(isSame)
+            for(cv::DMatch &other: kptMatches)
             {
-                cv::KeyPoint prevKptOther = kptsPrev[other.queryIdx];
-                cv::KeyPoint currKptOther = kptsCurr[other.trainIdx];
-                double distPrev = cv::norm(prevKpt.pt - prevKptOther.pt);
-                double distCurr = cv::norm(currKpt.pt - currKptOther.pt);
-                // Make sure we dont divide by zero
-                bool divisorNotZero = distPrev > std::numeric_limits<double>::epsilon();
-                if( divisorNotZero && distCurr >= minDistanceThreshold) distanceRatios.push_back(distCurr / distPrev);
+                bool isSame = other.queryIdx == match.queryIdx && other.trainIdx == match.trainIdx;
+                if(isSame)
+                {
+                    cv::KeyPoint prevKptOther = kptsPrev[other.queryIdx];
+                    cv::KeyPoint currKptOther = kptsCurr[other.trainIdx];
+                    double distPrev = cv::norm(prevKpt.pt - prevKptOther.pt);
+                    double distCurr = cv::norm(currKpt.pt - currKptOther.pt);
+                    // Make sure we dont divide by zero
+                    bool divisorNotZero = distPrev > std::numeric_limits<double>::epsilon();
+                    if( divisorNotZero && distCurr >= minDistanceThreshold) distanceRatios.push_back(distCurr / distPrev);
 
+                }
             }
-        }
-   }
+    }
     std::cout << "Compute median "<< std::endl;
-   // Now we have distance ratios for all keypoint match pairs
-   // Compute the median 
-   std::sort(distanceRatios.begin(), distanceRatios.end());
-   int medianIdx = floor(distanceRatios.size() / 2.0);
+    // Now we have distance ratios for all keypoint match pairs
+    // Compute the median 
+    if (distanceRatios.size() > 0)
+    {
+        std::sort(distanceRatios.begin(), distanceRatios.end());
+        int medianIdx = floor(distanceRatios.size() / 2.0);
 
-   double medianDistanceRatio = medianIdx % 2 == 0 ? (distanceRatios[medianIdx] + distanceRatios[medianIdx - 1]) / 2.0 : distanceRatios[medianIdx];
+        double medianDistanceRatio = medianIdx % 2 == 0 ? (distanceRatios[medianIdx] + distanceRatios[medianIdx - 1]) / 2.0 : distanceRatios[medianIdx];
 
-   double dT = (1.0 / frameRate);
-   TTC = -dT / (1 - medianDistanceRatio);
-   std::cout << "TTC computed" << std::endl;
-   
+        double dT = (1.0 / frameRate);
+        TTC = -dT / (1 - medianDistanceRatio);
+        std::cout << "TTC computed" << std::endl;
+    }
+    else
+        TTC = std::numeric_limits<double>::quiet_NaN();
 }
 
 
