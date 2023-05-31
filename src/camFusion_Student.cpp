@@ -194,82 +194,32 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 }
 
 
-std::pair<size_t, int> getBoundingBoxCount(cv::KeyPoint &keypoint, std::vector<BoundingBox> &boxes)
-{
-    size_t count = 0;
-    int id;
-    for(BoundingBox &box: boxes)
-    {
-        if(box.roi.contains(keypoint.pt))
-        {
-            count++;
-            id = box.boxID;
-        }
-        
-    }
-    return std::make_pair(count, id);
-}
 
 
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
 {
-   // Remove matches with keypoints that are in more than one bounding box
 
-   int cols = prevFrame.boundingBoxes.size();
-   int rows = currFrame.boundingBoxes.size();
+    // For each bounding box in current frame, go through the matches
+    int currBoxMatch = -1;
+    std::map<int, int> prevBoxCounter;
+    for(BoundingBox &boxCurr: currFrame.boundingBox)
+    {
 
-   cv::Mat  pairCount = cv::Mat::zeros(rows, cols, CV_32S);
-
-   for (auto it = matches.begin(); it != matches.end(); it++)
-   {
-        cv::KeyPoint prevKpt = prevFrame.keypoints[(*it).queryIdx];
-        cv::KeyPoint currKpt = currFrame.keypoints[(*it).trainIdx];
-
-        for (auto boxPrev: prevFrame.boundingBoxes)
+        for(cv::DMatch &match: matches)
         {
-            if (boxPrev.roi.contains(prevKpt.pt))
+            for(BoundingBox &boxPrev: prevFrame.boundingBoxes)
             {
-                for(auto boxCurr: currFrame.boundingBoxes)
-                {
-                    if(boxCurr.roi.contains(currKpt.pt))
-                    {
-                        // std::cout << "Found Pair " << boxPrev.boxID << ", " << boxCurr.boxID << std::endl;
-                        pairCount.at<int>(boxCurr.boxID, boxPrev.boxID)++;
-                    }
-                }
+                bool isCurr = boxCurr.roi.contains(currFrame.keypoints[match.trainIdx]);
+                bool isPrev = boxPrev.roi.contains(prevFrame.keypoints[match.queryIdx]);
+                
+                if(isCurr && isPrev) prevBoxCounter[boxPrev.boxID]++;
             }
         }
-   }
-   // For each row (bounding box in previous frame), find the column (bounding box in current frame)
-   // that has highest count
-   cv::Point minLoc, maxLoc;
-   double minVal, maxVal;
-   std::map<int, int> tempPairs;
-   for(BoundingBox &box: currFrame.boundingBoxes)
-   {
-        cv::minMaxLoc(pairCount.row(box.boxID), &minVal, &maxVal, &minLoc, &maxLoc);
-        std::cout << " BB PAIR: " << maxLoc.x << ", " << box.boxID << std::endl;
-        tempPairs[maxLoc.x]=box.boxID;
-   }
- 
-  // Filter based on highest number of pairs
-  int maxCount = 0;
-  std::pair<int, int> maxPair;
-  for(BoundingBox &box: currFrame.boundingBoxes)
-  {
-     for(auto &bbPair: tempPairs)
-     {
-        if(bbPair.second == box.boxID)
-        {
-            auto c = pairCount.at<double>(box.boxID, bbPair.first);
-            if( c > maxCount)
-            {
-                maxCount = c;
-                maxPair = std::make_pair(bbPair.first, box.boxID);
-            }
-        }
-     }
-     bbBestMatches[maxPair.first] = maxPair.second;
-  }
+
+        // Find the box from previous frame with maximum matches
+        auto less_than = [](const &int a, const &int b){return a.second < b.second;}
+        auto maxPrev = std::max_element(prevBoxCounter.begin(), prevBoxCounter.end(), less_than);
+        bbBestMatches[maxPrev->first] = boxCurr.boxID; 
+    }
 
 }
