@@ -204,7 +204,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
     std::map<int, int> prevBoxCounter;
     for(BoundingBox &boxCurr: currFrame.boundingBoxes)
     {
-
+        prevBoxCounter.clear();
         for(cv::DMatch &match: matches)
         {
             for(BoundingBox &boxPrev: prevFrame.boundingBoxes)
