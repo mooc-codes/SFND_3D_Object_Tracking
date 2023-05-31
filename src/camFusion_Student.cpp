@@ -140,10 +140,26 @@ void show3DObjects(std::vector<BoundingBox> &boundingBoxes, cv::Size worldSize, 
 // associate a given bounding box with the keypoints it contains
 void clusterKptMatchesWithROI(BoundingBox &boundingBox, std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPoint> &kptsCurr, std::vector<cv::DMatch> &kptMatches)
 {
-    for(cv::DMatch &match: kptMatches)
+    
+    for (cv::DMatch &match: kptMatches)
     {
         if(boundingBox.roi.contains(kptsCurr[match.trainIdx].pt)) boundingBox.kptMatches.push_back(match);
     }
+
+    // Compute mean distance
+    std::vector<double> kptDistances(boundingBox.kptMatches.size());
+    auto compute_kptDist = [&](auto& match){return cv::norm(kptsPrev[match.queryIdx].pt - kptsCurr[match.trainIdx].pt;)};
+    std::transform(boundingBox.kptMatches.begin(), boundingBox.kptMatches.end(), kptDistances.begin(), compute_kptDist);
+    double kptDistMean = std::accumulate(kptDistances.begin(), kptDistances.end(), 0.0) / boundingBox.kptMatches.size();
+    // Compute standard deviation
+    std::vector<double> deviations(boundingBox.kptMatches.size());
+    auto squared_error = [&](auto& dist){return std::pow(dist - mean, 2);};
+    std::transform(kptDistances.begin(), kptDistances.end(), deviations.begin(), squared_error)
+    double KptDistSD = std::sqrt(std::accumulate(deviations.begin(), deviations.end(), 0.0) / deviations.size()):
+
+    // A match is outlier if the distance is > 1.8 times the standatd deviation
+    auto is_outlier = [&](auto& dist){return dist > (1.8 * KptDistSD);};
+    boundingBox.kptMatches.erase(std::remove_if(boundingBox.kptMatches.begin(), boundingBox.kptMatches.end(), is_outlier), boundingBox.kptMatches.end());
 }
 
 
