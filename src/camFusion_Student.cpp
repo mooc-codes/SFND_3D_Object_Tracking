@@ -244,11 +244,32 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
    // that has highest count
    cv::Point minLoc, maxLoc;
    double minVal, maxVal;
+   std::map<int, int> tempPairs;
    for(BoundingBox &box: currFrame.boundingBoxes)
    {
         cv::minMaxLoc(pairCount.row(box.boxID), &minVal, &maxVal, &minLoc, &maxLoc);
         std::cout << " BB PAIR: " << maxLoc.x << ", " << box.boxID << std::endl;
-        bbBestMatches[maxLoc.x]=box.boxID;
+        tempPairs[maxLoc.x]=box.boxID;
    }
  
+  // Filter based on highest number of pairs
+  int maxCount = 0;
+  std::pair<int, int> maxPair;
+  for(BoundingBox &box: currFrame.boundingBoxes)
+  {
+     for(auto &bbPair: tempPairs)
+     {
+        if(bbPair.second == box.boxID)
+        {
+            auto c = pairCount.at<double>(box.boxID, bbPair.first);
+            if( c > maxCount)
+            {
+                maxCount = c;
+                maxPair = std::make_pair(bbPair.first, box.boxID);
+            }
+        }
+     }
+     bbBestMatches[maxPair.first] = maxPair.second;
+  }
+
 }
