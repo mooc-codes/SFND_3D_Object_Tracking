@@ -177,7 +177,7 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
                 }
             }
     }
-    std::cout << "Compute median "<< std::endl;
+
     // Now we have distance ratios for all keypoint match pairs
     // Compute the median 
     if (distanceRatios.size() > 0)
@@ -189,7 +189,7 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
 
         double dT = (1.0 / frameRate);
         TTC = -dT / (1 - medianDistanceRatio);
-        std::cout << "TTC computed" << std::endl;
+
     }
     else
         TTC = std::numeric_limits<double>::quiet_NaN();
