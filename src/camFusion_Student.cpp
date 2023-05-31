@@ -159,7 +159,7 @@ void clusterKptMatchesWithROI(BoundingBox &boundingBox, std::vector<cv::KeyPoint
 
     // A match is outlier if the distance is > 1.8 times the standatd deviation
     auto is_outlier = [&](auto& dist){return dist > (1.8 * KptDistSD);};
-    boundingBox.kptMatches.erase(std::remove_if(boundingBox.kptMatches.begin(), boundingBox.kptMatches.end(), is_outlier), boundingBox.kptMatches.end());
+    boundingBox.kptMatches.erase(std::remove_if(kptDistances.begin(), kptDistances.end(), is_outlier), boundingBox.kptMatches.end());
 }
 
 
