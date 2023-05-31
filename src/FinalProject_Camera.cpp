@@ -93,7 +93,7 @@ int main(int argc, const char *argv[])
         frame.cameraImg = img;
         dataBuffer.push_back(frame);
 
-        cout << "#1 : LOAD IMAGE " << imgIndex <<" INTO BUFFER done" << endl;
+        // cout << "#1 : LOAD IMAGE " << imgIndex <<" INTO BUFFER done" << endl;
 
 
         /* DETECT & CLASSIFY OBJECTS */
@@ -261,7 +261,7 @@ int main(int argc, const char *argv[])
                     //// TASK FP.2 -> compute time-to-collision based on Lidar data (implement -> computeTTCLidar)
                     double ttcLidar; 
                     computeTTCLidar(prevBB->lidarPoints, currBB->lidarPoints, sensorFrameRate, ttcLidar);
-                    std::cout << "Lidar TTC: " << ttcLidar << " Using Boxes "<< prevBB->boxID << ", " << currBB->boxID << std::endl;
+                    
                     //// EOF STUDENT ASSIGNMENT
 
                     //// STUDENT ASSIGNMENT
@@ -271,8 +271,9 @@ int main(int argc, const char *argv[])
                     clusterKptMatchesWithROI(*currBB, (dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->kptMatches);                    
                     std::cout << "Keypoint Matches clustered" << std::endl;
                     computeTTCCamera((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, currBB->kptMatches, sensorFrameRate, ttcCamera);
-                    std::cout << "Camera TTC: " << ttcCamera << " Using Boxes "<< prevBB->boxID << ", " << currBB->boxID << std::endl << std::endl;
+                    
                     //// EOF STUDENT ASSIGNMENT
+                    std::cout << imgIndex << ", " << ttcLidar << ", " << ttcCamera << std::endl;
 
                     bVis = false;
                     if (bVis)
