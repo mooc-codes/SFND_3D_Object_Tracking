@@ -96,7 +96,7 @@ double descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &des
 }
 
 // Detect keypoints in image using the traditional Shi-Thomasi detector
-void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+double detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
 {
     // compute detector parameters based on image size
     int blockSize = 4;       //  size of an average block for computing a derivative covariation matrix over each pixel neighborhood
@@ -134,4 +134,117 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
         imshow(windowName, visImage);
         cv::waitKey(0);
     }
+    return t;
+}
+
+double  detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+{
+    int blockSize = 2; //gaussian window
+  	int aperturesize = 3; //sobel 
+  	int minResponse = 100;
+  	float k = 0.04;
+  
+  
+    cv::Mat dst, dst_norm, dst_norm_scaled;
+    dst = cv::Mat::zeros(img.size(), CV_32FC1);
+    cv::cornerHarris(img, dst, blockSize, aperturesize, k, cv::BORDER_DEFAULT);
+    cv::normalize(dst, dst_norm, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
+    cv::convertScaleAbs(dst_norm, dst_norm_scaled);
+
+    // Detect keypoints.
+    int response;
+    bool isOverlap;
+    double maxOverlap = 0.0;
+
+    double t = (double)cv::getTickCount();
+    for(size_t j = 0; j < dst_norm.rows; j++)
+    {
+        for(size_t i = 0; i < dst_norm.cols; i++)
+        {
+            response = (int)dst_norm.at<float>(j, i);
+            if(response > minResponse)
+            {
+                cv::KeyPoint newKeyPoint;
+                newKeyPoint.response = response;
+                newKeyPoint.pt = cv::Point2f(i, j);
+                newKeyPoint.size = 2 * aperturesize;
+
+                isOverlap = false;
+                for(auto it = keypoints.begin(); it != keypoints.end(); it++)
+                {
+                    if(cv::KeyPoint::overlap(newKeyPoint, *it) > maxOverlap)
+                    {
+                        isOverlap = true;
+                        if(newKeyPoint.response > (*it).response)
+                        {
+                            *it = newKeyPoint;
+                            break;
+                        }
+                    }
+                }
+                if(!isOverlap)
+                {
+                    keypoints.push_back(newKeyPoint);
+                }
+            }
+        }
+    }
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    if(bVis)
+    {
+        string windowName = "Harris Keypoint detection";
+        cv::namedWindow(windowName, 5);
+        cv::Mat visImage = img.clone();
+        cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        cv::imshow(windowName, visImage);
+        cv::waitKey(0);
+    }
+
+    return t;    
+}
+
+double detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std::string detectorType, bool bVis)
+{
+
+    cv::Ptr<cv::FeatureDetector> detector;
+
+    if (detectorType.compare("FAST") == 0) 
+    {
+        detector = cv::FastFeatureDetector::create();
+    }
+    else if (detectorType.compare("BRISK") == 0)
+    {
+        detector = cv::BRISK::create();
+    }
+    else if (detectorType.compare("ORB") == 0)
+    {
+        detector = cv::ORB::create();
+    }
+    else if (detectorType.compare("SIFT") == 0)
+    {
+        detector = cv::xfeatures2d::SIFT::create();
+    }
+    else if (detectorType.compare("AKAZE") == 0)
+    {
+        detector = cv::AKAZE::create();
+    }
+    else
+    {
+        std::cout<<detectorType<<" UNKOWN"<<std::endl;
+    }
+    double t = (double)cv::getTickCount();
+    detector->detect(img, keypoints);
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+
+    if(bVis)
+    {
+        string windowName = detectorType + " Keypoint detection";
+        cv::namedWindow(windowName, 5);
+        cv::Mat visImage = img.clone();
+        cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        cv::imshow(windowName, visImage);
+        cv::waitKey(0);
+    }
+
+    return t;
 }
