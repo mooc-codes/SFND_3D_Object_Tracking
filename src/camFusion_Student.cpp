@@ -202,11 +202,8 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
     // Get all x coordinates for current and previous frame
     std::vector<double> xPrev, xCurr;
 
-    std::transform(lidarPointsPrev.begin(), lidarPointsPrev.end(), xPrev.begin(), [](auto& point){return point.x;});
-    std::(xPrev.begin(), xPrev.end());
-    
+    std::transform(lidarPointsPrev.begin(), lidarPointsPrev.end(), xPrev.begin(), [](auto& point){return point.x;}); 
     std::transform(lidarPointsCurr.begin(), lidarPointsCurr.end(), xCurr.begin(), [](auto& point){return point.x;});
-    std::sort(xCurr.begin(), xCurr.end());
 
     double xPrevMean = std::accumulate(xPrev.begin(), xPrev.end(), 0.0) / xPrev.size();
     double xCurrMean = std::accumulate(xCurr.begin(), xCurr.end(), 0.0) / xCurr.size();
