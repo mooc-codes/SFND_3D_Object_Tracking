@@ -209,15 +209,15 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
         {
             for(BoundingBox &boxPrev: prevFrame.boundingBoxes)
             {
-                bool isCurr = boxCurr.roi.contains(currFrame.keypoints[match.trainIdx]);
-                bool isPrev = boxPrev.roi.contains(prevFrame.keypoints[match.queryIdx]);
+                bool isCurr = boxCurr.roi.contains(currFrame.keypoints[match.trainIdx].pt);
+                bool isPrev = boxPrev.roi.contains(prevFrame.keypoints[match.queryIdx].pt);
                 
                 if(isCurr && isPrev) prevBoxCounter[boxPrev.boxID]++;
             }
         }
 
         // Find the box from previous frame with maximum matches
-        auto less_than = [](const int& a, const int& b){return a.second < b.second;};
+        auto less_than = [](int& a, int& b){return a.second < b.second;};
         auto maxPrev = *std::max_element(prevBoxCounter.begin(), prevBoxCounter.end(), less_than);
         bbBestMatches[maxPrev.first] = boxCurr.boxID; 
     }
