@@ -142,7 +142,7 @@ void clusterKptMatchesWithROI(BoundingBox &boundingBox, std::vector<cv::KeyPoint
 {
     for(cv::DMatch &match: kptMatches)
     {
-        if(boundingBox.roi.contains(kptsCurr[match.trainIdx].pt) boundingBox.kptMatches.push_back(match);
+        if(boundingBox.roi.contains(kptsCurr[match.trainIdx].pt)) boundingBox.kptMatches.push_back(match);
     }
 }
 
