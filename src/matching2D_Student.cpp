@@ -14,12 +14,14 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
 
     if (matcherType.compare("MAT_BF") == 0)
     {
-        int normType = cv::NORM_HAMMING;
+        int normType = descriptorType.compare("DES_HOG") ? cv::NORM_L2 : cv::NORM_HAMMING;
         matcher = cv::BFMatcher::create(normType, crossCheck);
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
-        // ...
+        descSource.convertTo(descSource, CV_32F);
+        descRef.convertTo(descRef, CV_32F);
+        matcher = cv::FlannBasedMatcher::create(); 
     }
 
     // perform matching task
@@ -31,9 +33,21 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
 
-        // ...
+        std::vector<std::vector<cv::DMatch>> knnMatches;
+        matcher->knnMatch(descSource, descRef, knnMatches, 2);
+
+        float ratioThreshold = 0.8f;  // Ratio threshold for filtering good matches
+
+        for (size_t i = 0; i < knnMatches.size(); ++i)
+        {
+            if (knnMatches[i][0].distance < ratioThreshold * knnMatches[i][1].distance) 
+            {
+                matches.push_back(knnMatches[i][0]);
+            }
+        }
     }
 }
+
 
 // Use one of several types of state-of-art descriptors to uniquely identify keypoints
 void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors, string descriptorType)
