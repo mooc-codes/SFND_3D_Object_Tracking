@@ -271,6 +271,7 @@ int main(int argc, const char *argv[])
                     double ttcCamera;
                     clusterKptMatchesWithROI(*currBB, (dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->kptMatches);                    
                     computeTTCCamera((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, currBB->kptMatches, sensorFrameRate, ttcCamera);
+                    std::cout << "Camera TTC: " << ttcCamera << " Using Boxes "<< prevBB->boxID << ", " << currBB->boxID << std::endl << std::endl;
                     //// EOF STUDENT ASSIGNMENT
 
                     bVis = false;
