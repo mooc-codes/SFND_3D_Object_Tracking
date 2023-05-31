@@ -202,7 +202,7 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
     // Get all x coordinates for current and previous frame
     std::vector<double> xPrev, xCurr;
 
-    std::tranform(lidarPointsPrev.begin(), lidarPointsPrev.end(), xPrev.begin(), [](auto& point){return point.x;});
+    std::transform(lidarPointsPrev.begin(), lidarPointsPrev.end(), xPrev.begin(), [](auto& point){return point.x;});
     std::(xPrev.begin(), xPrev.end());
     
     std::transform(lidarPointsCurr.begin(), lidarPointsCurr.end(), xCurr.begin(), [](auto& point){return point.x;});
