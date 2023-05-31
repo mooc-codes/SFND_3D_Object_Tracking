@@ -217,7 +217,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
         }
 
         // Find the box from previous frame with maximum matches
-        auto less_than = [](const int& a, const int& b){return a.second < b.second;}
+        auto less_than = [](const int& a, const int& b){return a.second < b.second;};
         auto maxPrev = *std::max_element(prevBoxCounter.begin(), prevBoxCounter.end(), less_than);
         bbBestMatches[maxPrev.first] = boxCurr.boxID; 
     }
