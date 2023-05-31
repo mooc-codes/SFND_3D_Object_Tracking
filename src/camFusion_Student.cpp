@@ -233,6 +233,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
                 {
                     if(boxCurr.roi.contains(currKpt.pt))
                     {
+                        std::cout << "Found Pair " << boxPrev.boxID << ", " << boxCurr.boxID << std::endl;
                         pairCount.at<int>(boxPrev.boxID, boxCurr.boxID)++;
                     }
                 }
