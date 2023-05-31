@@ -148,7 +148,7 @@ void clusterKptMatchesWithROI(BoundingBox &boundingBox, std::vector<cv::KeyPoint
 
     // Compute mean distance
     std::vector<double> kptDistances(boundingBox.kptMatches.size());
-    auto compute_kptDist = [&](auto& match){return cv::norm(kptsPrev[match.queryIdx].pt - kptsCurr[match.trainIdx].pt;)};
+    auto compute_kptDist = [&](auto& match){return cv::norm(kptsPrev[match.queryIdx].pt - kptsCurr[match.trainIdx].pt);};
     std::transform(boundingBox.kptMatches.begin(), boundingBox.kptMatches.end(), kptDistances.begin(), compute_kptDist);
     double kptDistMean = std::accumulate(kptDistances.begin(), kptDistances.end(), 0.0) / boundingBox.kptMatches.size();
     // Compute standard deviation
