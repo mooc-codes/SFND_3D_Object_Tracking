@@ -164,7 +164,7 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
             for(cv::DMatch &other: kptMatches)
             {
                 bool isSame = other.queryIdx == match.queryIdx && other.trainIdx == match.trainIdx;
-                if(isSame)
+                if(!isSame)
                 {
                     cv::KeyPoint prevKptOther = kptsPrev[other.queryIdx];
                     cv::KeyPoint currKptOther = kptsCurr[other.trainIdx];
